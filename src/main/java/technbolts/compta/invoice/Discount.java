@@ -1,5 +1,6 @@
 package technbolts.compta.invoice;
 
+import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import technbolts.pattern.annotation.ValueObject;
 
@@ -24,7 +25,9 @@ public class Discount {
     @JsonProperty
     private final BigDecimal amount;
 
-    public Discount(Type type, BigDecimal amount) {
+    @JsonCreator
+    public Discount(@JsonProperty("type") Type type,
+                    @JsonProperty("amount") BigDecimal amount) {
         this.type = type;
         this.amount = amount;
     }
@@ -45,4 +48,31 @@ public class Discount {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Discount discount = (Discount) o;
+
+        if (!amount.equals(discount.amount)) return false;
+        if (type != discount.type) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + amount.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Discount{" +
+                "type=" + type +
+                ", amount=" + amount +
+                '}';
+    }
 }

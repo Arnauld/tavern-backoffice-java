@@ -2,14 +2,14 @@ package technbolts.compta.invoice;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
-import technbolts.compta.infrastructure.DomainEvent;
-import technbolts.compta.infrastructure.Entity;
-import technbolts.compta.infrastructure.Id;
+import technbolts.core.infrastructure.DomainEvent;
+import technbolts.core.infrastructure.Entity;
+import technbolts.core.infrastructure.Id;
 import technbolts.pattern.annotation.ValueObject;
 
 import java.util.List;
 
-import static technbolts.compta.infrastructure.DomainEvents.ensureEntityId;
+import static technbolts.core.infrastructure.DomainEvents.ensureEntityId;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
@@ -32,7 +32,7 @@ public class InvoiceCreatedEvent implements DomainEvent {
     @Override
     public void applyOn(Entity entity) {
         ensureEntityId(Id.undefined(), entity);
-        Invoice invoice = (Invoice) entity;
+        InvoiceState invoice = entity.adaptTo(InvoiceState.class);
         invoice.onEvent(this);
     }
 

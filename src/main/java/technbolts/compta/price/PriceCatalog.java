@@ -1,13 +1,13 @@
 package technbolts.compta.price;
 
-import com.google.common.collect.Sets;
-import technbolts.compta.infrastructure.*;
+import technbolts.core.infrastructure.*;
 import technbolts.pattern.annotation.Service;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Set;
+
+import static technbolts.core.infrastructure.VersionedDomainEvent.applyOnAsSideEffect;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
@@ -15,25 +15,44 @@ import java.util.Set;
 @Service
 public class PriceCatalog extends AbstractEntity {
 
-    private final EventStore store;
-    private final Set<Id> entryIds = Sets.newLinkedHashSet();
-
-    public PriceCatalog(EventStore store) {
-        this.store = store;
-    }
-
-    public CatalogEntry registerNewEntry(String label, BigDecimal price) {
-        CatalogEntry entry = CatalogEntry.create(label, price);
-        entryCreated(entry);
-
-        UnitOfWork uow = UnitOfWork.current();
-        uow.registerModified(entry);
-        uow.registerModified(this);
+    public static PriceCatalog create(UnitOfWork uow, Id catalogId, String label, EventStore entriesStore) {
+        PriceCatalog entry = new PriceCatalog(uow, entriesStore);
+        entry.doCreate(catalogId, label);
         return entry;
     }
 
-    private void entryCreated(CatalogEntry entry) {
+    public static PriceCatalog loadFromHistory(UnitOfWork uow, EventStore entriesStore, Stream<VersionedDomainEvent> stream) {
+        if (!stream.hasRemaining())
+            throw new EmptyStreamException();
+
+        PriceCatalog entry = new PriceCatalog(uow, entriesStore);
+        stream.consume(applyOnAsSideEffect(entry));
+        return entry;
+    }
+
+
+    private final EventStore store;
+    private final PriceCatalogState state = new PriceCatalogState();
+
+    public PriceCatalog(UnitOfWork unitOfWork, EventStore entryStore) {
+        super(unitOfWork);
+        this.store = entryStore;
+    }
+
+    @Override
+    public Id entityId() {
+        return state.entityId();
+    }
+
+    private void doCreate(Id entryId, String label) {
+        applyNewEvent(new PriceCatalogCreatedEvent(entryId, label));
+    }
+
+
+    public CatalogEntry registerNewEntry(String label, BigDecimal price) {
+        CatalogEntry entry = CatalogEntry.create(unitOfWork(), label, price);
         applyNewEvent(new PriceCatalogEntryCreatedEvent(entityId(), entry.entityId(), entry.getLabel(), entry.getPrice()));
+        return entry;
     }
 
     @Nullable
@@ -42,15 +61,11 @@ public class PriceCatalog extends AbstractEntity {
         if (stream == null)
             throw new EntityNotFoundException("No entity found for id: " + entryId);
 
-        CatalogEntry entry = CatalogEntry.loadFromHistory(stream);
+        CatalogEntry entry = CatalogEntry.loadFromHistory(unitOfWork(), stream);
         return entry.getPrice();
     }
 
-    void onEvent(PriceCatalogEntryCreatedEvent event) {
-        entryIds.add(event.getEntryId());
-    }
-
     public Set<Id> entryIds() {
-        return Collections.unmodifiableSet(entryIds);
+        return state.entryIds();
     }
 }

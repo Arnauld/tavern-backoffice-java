@@ -2,7 +2,7 @@ package technbolts.compta.invoice;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
-import technbolts.compta.infrastructure.Id;
+import technbolts.core.infrastructure.Id;
 import technbolts.pattern.annotation.ValueObject;
 
 import java.math.BigDecimal;
