@@ -9,7 +9,4 @@ public class IncompatibleEventVersionException extends RuntimeException {
         super(message);
     }
 
-    public IncompatibleEventVersionException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

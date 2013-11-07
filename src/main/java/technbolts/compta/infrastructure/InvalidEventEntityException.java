@@ -9,7 +9,4 @@ public class InvalidEventEntityException extends RuntimeException {
         super(message);
     }
 
-    public InvalidEventEntityException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }
