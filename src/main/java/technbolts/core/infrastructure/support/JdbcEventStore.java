@@ -26,29 +26,35 @@ public class JdbcEventStore implements EventStore {
     private final String id = UUID.randomUUID().toString();
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final DataSource dataSource;
+    private final String eventTable;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JdbcEventStore(DataSource dataSource) {
+        this(dataSource, "events");
+    }
+
+    public JdbcEventStore(DataSource dataSource, String eventTable) {
         this.dataSource = dataSource;
+        this.eventTable = eventTable;
     }
 
     @Override
     public void store(Transaction tx, @Nonnull Id streamId, @Nonnull Stream<VersionedDomainEvent> stream) {
-        PreparedStatement pStmt = null;
         try {
             Connection connection = getConnectionOrRegister(tx, true);
-            String sql = "INSERT INTO events (entity_id, version, creation_ts, event_type, payload) VALUES (?, ?, ?, ?, ?)";
-            pStmt = preparedStatement(tx, connection, sql);
+
+            String sql = String.format("INSERT INTO %s (entity_id, version, creation_ts, event_type, payload) VALUES (?, ?, ?, ?, ?)", eventTable);
+            PreparedStatement pStmt = preparedStatement(tx, connection, sql);
             pStmt.setString(1, streamId.asString());
 
-            InsertEvent insertEvent = new InsertEvent(pStmt, objectMapper);
-            stream.consume(insertEvent);
+            InsertEventConsumer insertEventConsumer = new InsertEventConsumer(pStmt, objectMapper);
+            stream.consume(insertEventConsumer);
 
-            log.debug("Stream {}: {} event(s) inserted", streamId, insertEvent.nbInsert);
+            log.debug("Stream {}: {} event(s) inserted", streamId, insertEventConsumer.nbInsert);
         } catch (SQLException e) {
             throw new DataStoreException("Ouch", e);
         } finally {
-            closeQuietly(pStmt);
+            // in the tx: closeQuietly(pStmt);
             // in the tx: closeQuietly(connection);
         }
     }
@@ -75,12 +81,12 @@ public class JdbcEventStore implements EventStore {
         return connection;
     }
 
-    private static class InsertEvent implements SideEffect<VersionedDomainEvent> {
+    private static class InsertEventConsumer implements SideEffect<VersionedDomainEvent> {
         private final PreparedStatement pStmt;
         private final ObjectMapper objectMapper;
         private int nbInsert = 0;
 
-        private InsertEvent(PreparedStatement pStmt, ObjectMapper objectMapper) {
+        private InsertEventConsumer(PreparedStatement pStmt, ObjectMapper objectMapper) {
             this.pStmt = pStmt;
             this.objectMapper = objectMapper;
         }
@@ -111,7 +117,7 @@ public class JdbcEventStore implements EventStore {
         PreparedStatement pStmt = null;
         try {
             connection = dataSource.getConnection();
-            String sql = "SELECT version, creation_ts, event_type, payload FROM events WHERE entity_id = ?";
+            String sql = "SELECT version, creation_ts, event_type, payload FROM events WHERE entity_id = ? order by version";
             pStmt = connection.prepareStatement(sql);
             pStmt.setString(1, streamId.asString());
             ResultSet resultSet = pStmt.executeQuery();

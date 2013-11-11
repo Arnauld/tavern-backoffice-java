@@ -39,8 +39,17 @@ public abstract class AbstractEntity implements Entity {
         return unitOfWork;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T adaptTo(Class<T> required) {
+        if (required.equals(EventHandler.class)) {
+            return (T) new EventHandler() {
+                @Override
+                public void handleEvent(VersionedDomainEvent event) {
+                    applyEvent(event, false);
+                }
+            };
+        }
         return null;
     }
 }

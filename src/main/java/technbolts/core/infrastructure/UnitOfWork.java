@@ -31,6 +31,13 @@ public class UnitOfWork {
 
     private final Map<Id, EventStore> entityStores = Maps.newHashMap();
     private final List<VersionedDomainEvent> newEvents = Lists.newArrayList();
+    private final EventBus<VersionedDomainEvent> eventBus;
+    private final EventStore defaultDataStore;
+
+    public UnitOfWork(EventBus<VersionedDomainEvent> eventBus, EventStore defaultDataStore) {
+        this.eventBus = eventBus;
+        this.defaultDataStore = defaultDataStore;
+    }
 
     /**
      * New and uncommitted event.
@@ -61,20 +68,30 @@ public class UnitOfWork {
         Transaction tx = new DefaultTransaction();
         boolean txCommitted = false;
         try {
-            List<VersionedDomainEvent> batch = null;
+            List<VersionedDomainEvent> batch = Lists.newArrayList();
             Id currentId = Id.undefined();
             for (VersionedDomainEvent event : newEvents) {
                 Id entityId = event.entityId();
                 if (!currentId.equals(entityId)) {
                     flushBatch(tx, currentId, batch);
-                    batch = Lists.newArrayList();
+                    currentId = entityId;
+                    if (!batch.isEmpty())
+                        batch = Lists.newArrayList();
                 }
+                batch.add(event);
             }
+
+            // remaining?
             flushBatch(tx, currentId, batch);
+
             tx.commit();
             txCommitted = true;
+            for (VersionedDomainEvent event : newEvents) {
+                eventBus.publish(event);
+            }
+            newEvents.clear();
         } finally {
-            if(!txCommitted)
+            if (!txCommitted)
                 tx.rollback();
         }
     }
@@ -83,8 +100,12 @@ public class UnitOfWork {
         if (batch == null || batch.isEmpty())
             return;
         EventStore eventStore = entityStores.get(entityId);
-        if (eventStore == null)
+        if (eventStore == null) {
+            eventStore = defaultDataStore;
+        }
+        if (eventStore == null) {
             throw new MissingEventStoreException("Event store not defined for entity " + entityId);
+        }
         eventStore.store(tx, entityId, Streams.from(batch));
     }
 

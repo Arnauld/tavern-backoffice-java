@@ -1,6 +1,7 @@
 package technbolts.core.infrastructure.support;
 
 import org.h2.jdbcx.JdbcConnectionPool;
+import technbolts.core.infrastructure.Disposable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,5 +17,14 @@ public class JdbcConnectionPools {
 
     public static JdbcConnectionPool acquire(String url) {
         return JdbcConnectionPool.create(url, "sa", "sa");
+    }
+
+    public static Disposable toDisposable(final JdbcConnectionPool pool) {
+        return new Disposable() {
+            @Override
+            public void dispose() {
+                pool.dispose();
+            }
+        };
     }
 }

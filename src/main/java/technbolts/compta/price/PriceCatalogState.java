@@ -11,7 +11,6 @@ import java.util.Set;
  */
 public class PriceCatalogState {
 
-
     private Id entityId = Id.undefined();
     private String label;
     private final Set<Id> entryIds = Sets.newLinkedHashSet();

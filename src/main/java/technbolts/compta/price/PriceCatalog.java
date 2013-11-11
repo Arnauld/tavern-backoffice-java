@@ -15,9 +15,13 @@ import static technbolts.core.infrastructure.VersionedDomainEvent.applyOnAsSideE
 @Service
 public class PriceCatalog extends AbstractEntity {
 
-    public static PriceCatalog create(UnitOfWork uow, Id catalogId, String label, EventStore entriesStore) {
+    public static PriceCatalog create(UnitOfWork uow, String label, EventStore entriesStore) {
+        return create(uow, Id.next(PriceCatalog.class), label, entriesStore);
+    }
+
+    public static PriceCatalog create(UnitOfWork uow, Id priceCatalogId, String label, EventStore entriesStore) {
         PriceCatalog entry = new PriceCatalog(uow, entriesStore);
-        entry.doCreate(catalogId, label);
+        entry.doCreate(priceCatalogId, label);
         return entry;
     }
 
@@ -67,5 +71,12 @@ public class PriceCatalog extends AbstractEntity {
 
     public Set<Id> entryIds() {
         return state.entryIds();
+    }
+
+    @Override
+    public <T> T adaptTo(Class<T> required) {
+        if (required.equals(PriceCatalogState.class))
+            return (T) state;
+        return super.adaptTo(required);
     }
 }

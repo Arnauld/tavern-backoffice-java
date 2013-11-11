@@ -41,7 +41,7 @@ public class PriceCatalogCreatedEvent implements DomainEvent {
 
     @Override
     public void applyOn(Entity entity) {
-        ensureEntityId(this, entity);
+        ensureEntityId(Id.undefined(), entity);
         PriceCatalogState entry = entity.adaptTo(PriceCatalogState.class);
         entry.onEvent(this);
     }

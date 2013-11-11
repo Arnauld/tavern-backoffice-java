@@ -50,7 +50,7 @@ public class CatalogEntryCreatedEvent implements DomainEvent {
 
     @Override
     public void applyOn(Entity entity) {
-        ensureEntityId(this, entity);
+        ensureEntityId(Id.undefined(), entity);
         CatalogEntryState entry = entity.adaptTo(CatalogEntryState.class);
         entry.onEvent(this);
     }

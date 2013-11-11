@@ -3,6 +3,8 @@ package technbolts.core.infrastructure;
 import com.google.common.collect.Lists;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -10,6 +12,8 @@ import java.util.List;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class VersionedDomainEvent {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VersionedDomainEvent.class);
 
     public static VersionedDomainEvent versioned(long version, DomainEvent event) {
         return new VersionedDomainEvent(event, version, System.currentTimeMillis());
@@ -89,7 +93,8 @@ public class VersionedDomainEvent {
         return new SideEffect<VersionedDomainEvent>() {
             @Override
             public void apply(VersionedDomainEvent event) {
-                event.applyOn(entity);
+                LOG.debug("About to apply event {} on {}", event, entity.entityId());
+                entity.adaptTo(EventHandler.class).handleEvent(event);
             }
         };
     }

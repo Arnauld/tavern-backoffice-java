@@ -17,15 +17,15 @@ import static technbolts.core.infrastructure.DomainEvents.ensureEntityId;
 @ValueObject
 public class InvoiceCreatedEvent implements DomainEvent {
     @JsonProperty
-    private final Id orderId;
+    private final Id invoiceId;
 
     @JsonProperty
     private final List<Item> items;
 
     @JsonCreator
-    public InvoiceCreatedEvent(@JsonProperty("orderId") Id orderId,
+    public InvoiceCreatedEvent(@JsonProperty("invoiceId") Id invoiceId,
                                @JsonProperty("items") List<Item> items) {
-        this.orderId = orderId;
+        this.invoiceId = invoiceId;
         this.items = items;
     }
 
@@ -37,7 +37,7 @@ public class InvoiceCreatedEvent implements DomainEvent {
     }
 
     public Id entityId() {
-        return orderId;
+        return invoiceId;
     }
 
     public List<Item> items() {
@@ -50,12 +50,12 @@ public class InvoiceCreatedEvent implements DomainEvent {
         if (o == null || getClass() != o.getClass()) return false;
 
         InvoiceCreatedEvent other = (InvoiceCreatedEvent) o;
-        return items.equals(other.items) && orderId.equals(other.orderId);
+        return items.equals(other.items) && invoiceId.equals(other.invoiceId);
     }
 
     @Override
     public int hashCode() {
-        int result = orderId.hashCode();
+        int result = invoiceId.hashCode();
         result = 31 * result + items.hashCode();
         return result;
     }
@@ -63,7 +63,7 @@ public class InvoiceCreatedEvent implements DomainEvent {
     @Override
     public String toString() {
         return "InvoiceCreatedEvent{" +
-                "orderId=" + orderId +
+                "invoiceId=" + invoiceId +
                 ", items=" + items +
                 '}';
     }

@@ -53,4 +53,10 @@ public class CatalogEntry extends AbstractEntity {
         return state.getPrice();
     }
 
+    @Override
+    public <T> T adaptTo(Class<T> required) {
+        if (required.equals(CatalogEntryState.class))
+            return (T) state;
+        return super.adaptTo(required);
+    }
 }
