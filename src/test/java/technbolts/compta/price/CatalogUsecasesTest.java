@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import technbolts.compta.price.view.CatalogView;
 import technbolts.compta.price.view.CatalogViews;
+import technbolts.compta.price.view.CatalogViewsUpdater;
 import technbolts.core.infrastructure.*;
 import technbolts.core.infrastructure.support.JdbcConnectionPools;
 import technbolts.core.infrastructure.support.JdbcEventStore;
@@ -25,20 +26,20 @@ public class CatalogUsecasesTest {
 
     private List<Disposable> disposables = Lists.newArrayList();
     private DefaultEventBus<VersionedDomainEvent> eventBus;
-    private JdbcConnectionPool dataSource;
     private EventStore eventStore;
     private CatalogViews catalogViews;
 
     @Before
     public void setUp() {
-        dataSource = JdbcConnectionPools.acquire();
+        JdbcConnectionPool dataSource = JdbcConnectionPools.acquire();
         disposables.add(JdbcConnectionPools.toDisposable(dataSource));
         eventStore = createDataStore(dataSource);
         new JdbcStoreUpdate("sql/h2", dataSource).migrate();
 
         catalogViews = new CatalogViews(dataSource);
+        CatalogViewsUpdater updater = new CatalogViewsUpdater(dataSource);
         eventBus = new DefaultEventBus<VersionedDomainEvent>();
-        eventBus.addListener(catalogViews.asListener());
+        eventBus.addListener(updater.asListener());
     }
 
     private UnitOfWork newUnitOfWork() {

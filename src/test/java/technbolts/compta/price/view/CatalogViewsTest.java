@@ -13,7 +13,6 @@ import technbolts.core.infrastructure.VersionedDomainEvent;
 import technbolts.core.infrastructure.support.JdbcConnectionPools;
 import technbolts.core.infrastructure.support.JdbcStoreUpdate;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -26,6 +25,7 @@ public class CatalogViewsTest {
     private List<Disposable> disposables = Lists.newArrayList();
     private JdbcConnectionPool dataSource;
     private CatalogViews catalogViews;
+    private CatalogViewsUpdater updater;
 
     @Before
     public void setUp() throws Exception {
@@ -33,6 +33,7 @@ public class CatalogViewsTest {
         disposables.add(JdbcConnectionPools.toDisposable(dataSource));
         new JdbcStoreUpdate("sql/h2", dataSource).migrate();
         catalogViews = new CatalogViews(dataSource);
+        updater = new CatalogViewsUpdater(dataSource);
     }
 
     @After
@@ -44,7 +45,7 @@ public class CatalogViewsTest {
     @Test
     public void notifyEvent__catalogCreatedEvent() throws DataAccessException {
         CatalogCreatedEvent event = new CatalogCreatedEvent(Id.create("ct"), "Price catalog");
-        catalogViews.asListener().notifyEvent(new VersionedDomainEvent(event, 1, System.currentTimeMillis()));
+        updater.asListener().notifyEvent(new VersionedDomainEvent(event, 1, System.currentTimeMillis()));
 
         List<CatalogView> views = catalogViews.findCatalogsByLabel("Price*");
         assertThat(views).isNotNull()
