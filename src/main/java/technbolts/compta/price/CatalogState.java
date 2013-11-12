@@ -25,7 +25,7 @@ public class CatalogState {
     }
 
     void onEvent(CatalogOnEntryAddedEvent event) {
-        entryIds.add(event.getEntryId());
+        entryIds.add(event.entryId());
     }
 
     public String getLabel() {

@@ -11,8 +11,8 @@ CREATE TABLE catalog_entry_views
   entry_id    VARCHAR(36)  NOT NULL,
   version     INT          NOT NULL,
   label       VARCHAR(36)  NOT NULL,
-  price       VARCHAR(36)  NOT NULL,
-  PRIMARY KEY (catalog_id, entry_id)
+  price       DECIMAL      NOT NULL,
+  PRIMARY KEY (entry_id)
 );
 
 UPDATE `metadata`

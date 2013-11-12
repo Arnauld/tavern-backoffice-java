@@ -9,6 +9,7 @@ import org.junit.runners.Parameterized;
 import org.reflections.Reflections;
 import technbolts.core.infrastructure.DomainEvent;
 import technbolts.core.infrastructure.RandomBeanInstanciator;
+import technbolts.core.infrastructure.View;
 
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -21,14 +22,14 @@ import static org.fest.assertions.Assertions.assertThat;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 @RunWith(Parameterized.class)
-public class DomainEventsGlobalTest extends JsonSerializableChecker {
+public class ViewsGlobalTest extends JsonSerializableChecker {
 
     @Parameterized.Parameters(name = "{index} - {0}")
     public static Collection<Object[]> data() {
         Reflections r = new Reflections("technbolts.compta");
-        Set<Class<? extends DomainEvent>> eventTypes = r.getSubTypesOf(DomainEvent.class);
+        Set<Class<?>> eventTypes = r.getTypesAnnotatedWith(View.class);
         List<Object[]> params = Lists.newArrayList();
-        for (Class<? extends DomainEvent> klazz : eventTypes) {
+        for (Class<?> klazz : eventTypes) {
             if(klazz.isInterface() || Modifier.isAbstract(klazz.getModifiers()))
                 continue;
             params.add(new Object[]{klazz});
@@ -36,7 +37,7 @@ public class DomainEventsGlobalTest extends JsonSerializableChecker {
         return params;
     }
 
-    public DomainEventsGlobalTest(Class<? extends DomainEvent> klazz) {
+    public ViewsGlobalTest(Class<? extends DomainEvent> klazz) {
         super(klazz);
     }
 }

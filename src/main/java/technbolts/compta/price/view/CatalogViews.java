@@ -12,6 +12,7 @@ import technbolts.core.infrastructure.support.JdbcExecutor;
 import technbolts.core.infrastructure.support.JdbcRunnable;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,4 +54,26 @@ public class CatalogViews {
             }
         });
     }
+
+    public List<CatalogEntryView> getCatalogEntriesForCatalog(final Id catalogId) throws DataAccessException {
+            return executor.executeWithinTransaction(new JdbcRunnable<List<CatalogEntryView>>() {
+                @Override
+                public List<CatalogEntryView> execute(Connection connection, JdbcDisposables disposables) throws SQLException {
+                    String sql = "SELECT entry_id, version, label, price FROM catalog_entry_views WHERE catalog_id LIKE ?";
+                    PreparedStatement pStmt = disposables.push(connection.prepareStatement(sql));
+                    pStmt.setString(1, catalogId.asString());
+                    ResultSet resultSet = disposables.push(pStmt.executeQuery());
+
+                    List<CatalogEntryView> views = Lists.newArrayList();
+                    while (resultSet.next()) {
+                        Id id = Id.create(resultSet.getString(1));
+                        long version = resultSet.getLong(2);
+                        String label = resultSet.getString(3);
+                        BigDecimal price = resultSet.getBigDecimal(4);
+                        views.add(new CatalogEntryView(catalogId, id, version, label, price));
+                    }
+                    return views;
+                }
+            });
+        }
 }

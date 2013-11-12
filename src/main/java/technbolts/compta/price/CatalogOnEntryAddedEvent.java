@@ -23,20 +23,20 @@ public class CatalogOnEntryAddedEvent implements CatalogEvent {
     private final Id entryId;
 
     @JsonProperty
-    private final String label;
+    private final String entryLabel;
 
     @JsonProperty
-    private final BigDecimal price;
+    private final BigDecimal entryPrice;
 
     @JsonCreator
     public CatalogOnEntryAddedEvent(@JsonProperty("catalogId") Id catalogId,
                                     @JsonProperty("entryId") Id entryId,
-                                    @JsonProperty("label") String label,
-                                    @JsonProperty("price") BigDecimal price) {
+                                    @JsonProperty("label") String entryLabel,
+                                    @JsonProperty("price") BigDecimal entryPrice) {
         this.catalogId = catalogId;
         this.entryId = entryId;
-        this.label = label;
-        this.price = price;
+        this.entryLabel = entryLabel;
+        this.entryPrice = entryPrice;
     }
 
     @Override
@@ -44,8 +44,16 @@ public class CatalogOnEntryAddedEvent implements CatalogEvent {
         return catalogId;
     }
 
-    public Id getEntryId() {
+    public Id entryId() {
         return entryId;
+    }
+
+    public String entryLabel() {
+        return entryLabel;
+    }
+
+    public BigDecimal entryPrice() {
+        return entryPrice;
     }
 
     @Override
@@ -64,8 +72,8 @@ public class CatalogOnEntryAddedEvent implements CatalogEvent {
 
         if (!catalogId.equals(that.catalogId)) return false;
         if (!entryId.equals(that.entryId)) return false;
-        if (!label.equals(that.label)) return false;
-        if (!price.equals(that.price)) return false;
+        if (!entryLabel.equals(that.entryLabel)) return false;
+        if (!entryPrice.equals(that.entryPrice)) return false;
 
         return true;
     }
@@ -74,8 +82,8 @@ public class CatalogOnEntryAddedEvent implements CatalogEvent {
     public int hashCode() {
         int result = catalogId.hashCode();
         result = 31 * result + entryId.hashCode();
-        result = 31 * result + label.hashCode();
-        result = 31 * result + price.hashCode();
+        result = 31 * result + entryLabel.hashCode();
+        result = 31 * result + entryPrice.hashCode();
         return result;
     }
 
@@ -84,8 +92,8 @@ public class CatalogOnEntryAddedEvent implements CatalogEvent {
         return "CatalogOnEntryAddedEvent{" +
                 "catalogId=" + catalogId +
                 ", entryId=" + entryId +
-                ", label='" + label + '\'' +
-                ", price=" + price +
+                ", label='" + entryLabel + '\'' +
+                ", price=" + entryPrice +
                 '}';
     }
 

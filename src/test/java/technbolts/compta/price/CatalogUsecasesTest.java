@@ -5,6 +5,7 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import technbolts.compta.price.view.CatalogEntryView;
 import technbolts.compta.price.view.CatalogView;
 import technbolts.compta.price.view.CatalogViews;
 import technbolts.compta.price.view.CatalogViewsUpdater;
@@ -33,7 +34,7 @@ public class CatalogUsecasesTest {
     public void setUp() {
         JdbcConnectionPool dataSource = JdbcConnectionPools.acquire();
         disposables.add(JdbcConnectionPools.toDisposable(dataSource));
-        eventStore = createDataStore(dataSource);
+        eventStore = new JdbcEventStore(dataSource);
         new JdbcStoreUpdate("sql/h2", dataSource).migrate();
 
         catalogViews = new CatalogViews(dataSource);
@@ -69,16 +70,17 @@ public class CatalogUsecasesTest {
 
         Id catalogId = catalog.entityId();
 
+        // Event store Part
         uow = newUnitOfWork();
         Stream<VersionedDomainEvent> stream = eventStore.openStream(catalogId);
         catalog = Catalog.loadFromHistory(uow, eventStore, stream);
         assertThat(catalog.entryIds()).hasSize(9);
 
+        // View Part
         List<CatalogView> catalogs = catalogViews.findCatalogsByLabel("Drinking");
-        assertThat(catalogs).contains(new CatalogView(catalog.entityId(), 10, "Drinking"));
-    }
+        assertThat(catalogs).contains(new CatalogView(catalogId, 10, "Drinking"));
 
-    private EventStore createDataStore(JdbcConnectionPool dataSource) {
-        return new JdbcEventStore(dataSource);
+        List<CatalogEntryView> entryViews = catalogViews.getCatalogEntriesForCatalog(catalogId);
+        assertThat(entryViews).hasSize(9);
     }
 }
