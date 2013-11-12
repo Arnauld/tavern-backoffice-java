@@ -81,4 +81,12 @@ public class InvoiceItemDiscountedEvent implements DomainEvent {
                 ", discount=" + discount +
                 '}';
     }
+
+    @Override
+    public <T> T adaptTo(Class<T> required) {
+        if(required.isInstance(this))
+            return (T)this;
+        return null;
+    }
+
 }

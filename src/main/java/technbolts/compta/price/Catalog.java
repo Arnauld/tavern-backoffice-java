@@ -13,32 +13,32 @@ import static technbolts.core.infrastructure.VersionedDomainEvent.applyOnAsSideE
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 @Service
-public class PriceCatalog extends AbstractEntity {
+public class Catalog extends AbstractEntity {
 
-    public static PriceCatalog create(UnitOfWork uow, String label, EventStore entriesStore) {
-        return create(uow, Id.next(PriceCatalog.class), label, entriesStore);
+    public static Catalog create(UnitOfWork uow, String label, EventStore entriesStore) {
+        return create(uow, Id.next(Catalog.class), label, entriesStore);
     }
 
-    public static PriceCatalog create(UnitOfWork uow, Id priceCatalogId, String label, EventStore entriesStore) {
-        PriceCatalog entry = new PriceCatalog(uow, entriesStore);
+    public static Catalog create(UnitOfWork uow, Id priceCatalogId, String label, EventStore entriesStore) {
+        Catalog entry = new Catalog(uow, entriesStore);
         entry.doCreate(priceCatalogId, label);
         return entry;
     }
 
-    public static PriceCatalog loadFromHistory(UnitOfWork uow, EventStore entriesStore, Stream<VersionedDomainEvent> stream) {
+    public static Catalog loadFromHistory(UnitOfWork uow, EventStore entriesStore, Stream<VersionedDomainEvent> stream) {
         if (!stream.hasRemaining())
             throw new EmptyStreamException();
 
-        PriceCatalog entry = new PriceCatalog(uow, entriesStore);
+        Catalog entry = new Catalog(uow, entriesStore);
         stream.consume(applyOnAsSideEffect(entry));
         return entry;
     }
 
 
     private final EventStore store;
-    private final PriceCatalogState state = new PriceCatalogState();
+    private final CatalogState state = new CatalogState();
 
-    public PriceCatalog(UnitOfWork unitOfWork, EventStore entryStore) {
+    public Catalog(UnitOfWork unitOfWork, EventStore entryStore) {
         super(unitOfWork);
         this.store = entryStore;
     }
@@ -49,13 +49,13 @@ public class PriceCatalog extends AbstractEntity {
     }
 
     private void doCreate(Id entryId, String label) {
-        applyNewEvent(new PriceCatalogCreatedEvent(entryId, label));
+        applyNewEvent(new CatalogCreatedEvent(entryId, label));
     }
 
 
     public CatalogEntry registerNewEntry(String label, BigDecimal price) {
         CatalogEntry entry = CatalogEntry.create(unitOfWork(), label, price);
-        applyNewEvent(new PriceCatalogEntryCreatedEvent(entityId(), entry.entityId(), entry.getLabel(), entry.getPrice()));
+        applyNewEvent(new CatalogOnEntryAddedEvent(entityId(), entry.entityId(), entry.getLabel(), entry.getPrice()));
         return entry;
     }
 
@@ -75,7 +75,7 @@ public class PriceCatalog extends AbstractEntity {
 
     @Override
     public <T> T adaptTo(Class<T> required) {
-        if (required.equals(PriceCatalogState.class))
+        if (required.equals(CatalogState.class))
             return (T) state;
         return super.adaptTo(required);
     }

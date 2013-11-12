@@ -6,7 +6,6 @@ import swoop.Action;
 import swoop.Request;
 import swoop.Response;
 import swoop.Swoop;
-import technbolts.compta.price.PriceCatalog;
 import technbolts.core.infrastructure.*;
 import technbolts.core.infrastructure.support.JdbcEventStore;
 import technbolts.core.infrastructure.support.JdbcStoreUpdate;

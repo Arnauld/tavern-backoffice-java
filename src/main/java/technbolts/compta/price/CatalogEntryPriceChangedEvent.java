@@ -15,7 +15,7 @@ import static technbolts.core.infrastructure.DomainEvents.ensureEntityId;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 @ValueObject
-public class CatalogEntryPriceChangedEvent implements DomainEvent {
+public class CatalogEntryPriceChangedEvent implements CatalogEntryEvent {
 
     @JsonProperty
     private final Id entryId;
@@ -73,4 +73,12 @@ public class CatalogEntryPriceChangedEvent implements DomainEvent {
                 ", price=" + price +
                 '}';
     }
+
+    @Override
+    public <T> T adaptTo(Class<T> required) {
+        if(required.isInstance(this))
+            return (T)this;
+        return null;
+    }
+
 }

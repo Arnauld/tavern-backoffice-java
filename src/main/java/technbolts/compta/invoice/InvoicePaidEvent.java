@@ -68,4 +68,12 @@ public class InvoicePaidEvent implements DomainEvent {
                 ", price=" + price +
                 '}';
     }
+
+    @Override
+    public <T> T adaptTo(Class<T> required) {
+        if(required.isInstance(this))
+            return (T)this;
+        return null;
+    }
+
 }

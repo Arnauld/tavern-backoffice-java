@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
-public class PriceCatalogState {
+public class CatalogState {
 
     private Id entityId = Id.undefined();
     private String label;
@@ -19,12 +19,12 @@ public class PriceCatalogState {
         return entityId;
     }
 
-    void onEvent(PriceCatalogCreatedEvent event) {
+    void onEvent(CatalogCreatedEvent event) {
         this.entityId = event.entityId();
         this.label = event.getLabel();
     }
 
-    void onEvent(PriceCatalogEntryCreatedEvent event) {
+    void onEvent(CatalogOnEntryAddedEvent event) {
         entryIds.add(event.getEntryId());
     }
 

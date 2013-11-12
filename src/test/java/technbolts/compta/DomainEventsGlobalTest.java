@@ -10,6 +10,7 @@ import org.reflections.Reflections;
 import technbolts.core.infrastructure.DomainEvent;
 import technbolts.core.infrastructure.RandomBeanInstanciator;
 
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,8 @@ public class DomainEventsGlobalTest {
         Set<Class<? extends DomainEvent>> eventTypes = r.getSubTypesOf(DomainEvent.class);
         List<Object[]> params = Lists.newArrayList();
         for (Class<? extends DomainEvent> klazz : eventTypes) {
+            if(klazz.isInterface() || Modifier.isAbstract(klazz.getModifiers()))
+                continue;
             params.add(new Object[]{klazz});
         }
         return params;

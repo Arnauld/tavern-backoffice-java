@@ -67,4 +67,12 @@ public class InvoiceCreatedEvent implements DomainEvent {
                 ", items=" + items +
                 '}';
     }
+
+    @Override
+    public <T> T adaptTo(Class<T> required) {
+        if(required.isInstance(this))
+            return (T)this;
+        return null;
+    }
+
 }
