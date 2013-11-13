@@ -13,24 +13,24 @@ import java.math.BigDecimal;
 @View
 public class CatalogEntryView {
 
-    @JsonProperty
+    @JsonProperty("catalog_id")
     private final Id catalogId;
 
-    @JsonProperty
+    @JsonProperty("entry_id")
     private final Id entryId;
 
-    @JsonProperty
+    @JsonProperty("version")
     private final long version;
 
-    @JsonProperty
+    @JsonProperty("label")
     private final String label;
 
-    @JsonProperty
+    @JsonProperty("price")
     private final BigDecimal price;
 
     @JsonCreator
-    public CatalogEntryView(@JsonProperty("catalogId") Id catalogId,
-                            @JsonProperty("entryId") Id entryId,
+    public CatalogEntryView(@JsonProperty("catalog_id") Id catalogId,
+                            @JsonProperty("entry_id") Id entryId,
                             @JsonProperty("version") long version,
                             @JsonProperty("label") String label,
                             @JsonProperty("price") BigDecimal price) {

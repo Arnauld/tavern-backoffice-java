@@ -32,11 +32,15 @@ public class UnitOfWork {
     private final Map<Id, EventStore> entityStores = Maps.newHashMap();
     private final List<VersionedDomainEvent> newEvents = Lists.newArrayList();
     private final EventBus<VersionedDomainEvent> eventBus;
-    private final EventStore defaultDataStore;
+    private final EventStore defaultEventStore;
 
-    public UnitOfWork(EventBus<VersionedDomainEvent> eventBus, EventStore defaultDataStore) {
+    public UnitOfWork(EventBus<VersionedDomainEvent> eventBus, EventStore defaultEventStore) {
+        if(eventBus == null)
+            throw new IllegalArgumentException("Event bus cannot be null");
+        if(defaultEventStore == null)
+            throw new IllegalArgumentException("Default event-store cannot be null");
         this.eventBus = eventBus;
-        this.defaultDataStore = defaultDataStore;
+        this.defaultEventStore = defaultEventStore;
     }
 
     /**
@@ -101,7 +105,7 @@ public class UnitOfWork {
             return;
         EventStore eventStore = entityStores.get(entityId);
         if (eventStore == null) {
-            eventStore = defaultDataStore;
+            eventStore = defaultEventStore;
         }
         if (eventStore == null) {
             throw new MissingEventStoreException("Event store not defined for entity " + entityId);

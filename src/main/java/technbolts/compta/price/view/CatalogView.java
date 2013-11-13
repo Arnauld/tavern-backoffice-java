@@ -11,13 +11,13 @@ import technbolts.core.infrastructure.View;
 @View
 public class CatalogView {
 
-    @JsonProperty
+    @JsonProperty("catalog_id")
     private final Id catalogId;
 
-    @JsonProperty
+    @JsonProperty("version")
     private final long version;
 
-    @JsonProperty
+    @JsonProperty("label")
     private final String label;
 
     @JsonCreator

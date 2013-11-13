@@ -1,21 +1,15 @@
 package technbolts.compta;
 
 import com.google.common.collect.Lists;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.reflections.Reflections;
 import technbolts.core.infrastructure.DomainEvent;
-import technbolts.core.infrastructure.RandomBeanInstanciator;
 
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>

@@ -18,7 +18,8 @@ public class MapBuilder<K,V> {
     }
 
     private Map<K,V> map = Maps.newHashMap();
-    public MapBuilder with(K key, V value) {
+
+    public MapBuilder<K,V> with(K key, V value) {
         map.put(key, value);
         return this;
     }

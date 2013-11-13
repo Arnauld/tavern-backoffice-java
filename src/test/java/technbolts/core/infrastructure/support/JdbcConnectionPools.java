@@ -11,8 +11,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JdbcConnectionPools {
     private static AtomicInteger idGen = new AtomicInteger();
 
+    public static String acquireUrl() {
+        return "jdbc:h2:mem:test" + idGen.incrementAndGet();
+    }
+
     public static JdbcConnectionPool acquire() {
-        return acquire("jdbc:h2:mem:test" + idGen.incrementAndGet());
+        return acquire(acquireUrl());
     }
 
     public static JdbcConnectionPool acquire(String url) {
